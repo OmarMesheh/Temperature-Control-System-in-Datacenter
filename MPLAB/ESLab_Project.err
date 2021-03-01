@@ -1,0 +1,36 @@
+Warning[205] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 3 : Found directive in column 1. (__CONFIG)
+Warning[205] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 5 : Found directive in column 1. (cblock)
+Warning[205] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 13 : Found directive in column 1. (ENDC)
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 30 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 31 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 33 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 34 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 35 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 36 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 37 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 39 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 50 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 51 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 54 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 55 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 58 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Warning[203] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 160 : Found opcode in column 1. (return)
+Warning[203] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 175 : Found opcode in column 1. (return)
+Warning[203] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 221 : Found opcode in column 1. (return)
+Warning[203] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 261 : Found opcode in column 1. (return)
+Warning[203] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 278 : Found opcode in column 1. (return)
+Warning[203] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 289 : Found opcode in column 1. (return)
+Warning[203] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 302 : Found opcode in column 1. (return)
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 335 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 361 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 376 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 391 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Warning[203] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 396 : Found opcode in column 1. (RETFIE)
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 407 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 419 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 450 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 465 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 480 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 492 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 507 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Warning[205] C:\USERS\OMAR\DESKTOP\EMBEDDED LAB PROJECT\ESLAB_PROJECT\MPLAB\ESLAB_PROJECT.ASM 510 : Found directive in column 1. (END)

@@ -1,0 +1,100 @@
+MPLINK 4.35, Linker
+Linker Map File - Created Tue Dec 29 11:16:36 2020
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000000
+                   .org_1       code   0x000000    program   0x000004
+                   .org_2       code   0x000004    program   0x000364
+.config_2007_ESLAB_PROJECT.O       code   0x002007    program   0x000002
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x000001      
+                            0x000004    0x0001b5      
+                            0x002007    0x002007      
+            437 out of 8453 program addresses used, program memory utilization is 5%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                  CASE0T0   0x000168    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  CASE0T2   0x000110    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  CASE1T0   0x00017e    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  CASE1T2   0x000121    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  CASE2T0   0x00018f    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  CASE2T2   0x000132    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  CASE3T0   0x0001a0    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  CASE3T2   0x000143    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+               Check_knob   0x000055    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+               Check_temp   0x000045    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                      ISR   0x0000e6    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  Initial   0x000005    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                LCD_delay   0x0000de    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                     Main   0x000032    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  SETTMR0   0x0001ad    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                 TMR0CONT   0x000160    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  TMR0INT   0x000155    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  TMR0RET   0x00015a    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                 TMR2CONT   0x00010a    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  TMR2INT   0x0000fc    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  TMR2RET   0x000104    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                     Wait   0x00003b    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                clear_LCD   0x0000cc    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+             display_AUTO   0x000065    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+             display_HOLD   0x0000a8    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+           display_MANUAL   0x000072    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+            display_SPEED   0x00007f    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                   endLcd   0x0000e4    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+       external_interrupt   0x0000f2    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                    loop2   0x0000e1    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  recheck   0x000036    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                send_char   0x0000d7    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                 send_cmd   0x0000cf    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                  Initial   0x000005    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                     Main   0x000032    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  recheck   0x000036    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                     Wait   0x00003b    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+               Check_temp   0x000045    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+               Check_knob   0x000055    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+             display_AUTO   0x000065    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+           display_MANUAL   0x000072    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+            display_SPEED   0x00007f    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+             display_HOLD   0x0000a8    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                clear_LCD   0x0000cc    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                 send_cmd   0x0000cf    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                send_char   0x0000d7    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                LCD_delay   0x0000de    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                    loop2   0x0000e1    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                   endLcd   0x0000e4    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                      ISR   0x0000e6    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+       external_interrupt   0x0000f2    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  TMR2INT   0x0000fc    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  TMR2RET   0x000104    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                 TMR2CONT   0x00010a    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  CASE0T2   0x000110    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  CASE1T2   0x000121    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  CASE2T2   0x000132    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  CASE3T2   0x000143    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  TMR0INT   0x000155    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  TMR0RET   0x00015a    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                 TMR0CONT   0x000160    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  CASE0T0   0x000168    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  CASE1T0   0x00017e    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  CASE2T0   0x00018f    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  CASE3T0   0x0001a0    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+                  SETTMR0   0x0001ad    program     static C:\Users\OMAR\Desktop\Embedded lab project\ESLab_Project\MPLAB\ESLab_Project.asm
+
+

@@ -1,0 +1,992 @@
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 #INCLUDE "P16F877A.INC"
+                      00001         LIST
+                      00002 ; P16F877A.INC  Standard Header File, Version 1.00    Microchip Technology, Inc.
+                      00400         LIST
+                      00002 
+Warning[205]: Found directive in column 1. (__CONFIG)
+2007   3939           00003 __CONFIG _DEBUG_OFF&_CP_OFF&_WRT_HALF&_CPD_OFF&_LVP_OFF&_BODEN_OFF&_PWRTE_OFF&_WDT_OFF&_XT_OSC
+                      00004 
+Warning[205]: Found directive in column 1. (cblock)
+                      00005 cblock 0x20
+  00000020            00006         TEMP    ;Temporary register
+  00000021            00007         SPD
+  00000022            00008         lsd             ;lsd and msd are used in LCD delay loop calculation
+  00000023            00009         msd
+  00000024            00010         wasHOLD ;We will use the least significant bit in this register to check if the last state was h
+                            old
+  00000025            00011         TEMPWR  ;Saves the working register value when an interrupt occurs
+  00000026            00012         TEMPST  ;Saves the status register value when an interrupt occurs
+Warning[205]: Found directive in column 1. (ENDC)
+                      00013 endc
+  000000AA            00014 TMR0VAR EQU 0XAA                ;Counter for timer0
+  000000AB            00015 TMR2VAR EQU 0XAB                ;Counter for timer2
+                      00016 ;**********************************************************************
+                      00017 ; Start of executable code
+0000                  00018         ORG  0x00
+0000   0000           00019         nop
+0001   2805           00020         GOTO Initial
+                      00021 
+                      00022 ; Interrupt vector
+0004                  00023         ORG  0x04
+0004   28E6           00024         GOTO ISR
+                      00025 
+                      00026 ;**********************Initialize Register Values**********************
+0005                  00027 Initial
+0005   1683 1303      00028         Banksel TRISA           ;Select bank 1
+0007   3020           00029         Movlw   b'00100000'     ;PORTA bit Number5 is INPUT
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0008   0085           00030         Movwf   TRISA
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0009   1409           00031         BSF     TRISE,0
+000A   3081           00032         Movlw   b'10000001'             ;PORTB bits RB0, RB7 are inputs (push button+ switch)
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+000B   0086           00033         Movwf   TRISB
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+000C   0188           00034         Clrf    TRISD                   ;LCD data
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+000D   0187           00035         CLRF    TRISC                   ;Set port c as output
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+000E   01AB           00036         CLRF    TMR2VAR         
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+000F   01AA           00037         CLRF    TMR0VAR
+0010   304B           00038         Movlw   4BH
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0011   009F           00039         Movwf   ADCON1
+0012   1283 1303      00040         BANKSEL PORTC
+0014   3061           00041         Movlw   61H
+0015   009F           00042         Movwf   ADCON0                  ;Left justified, fosc/8, AD enabled, RA5 input(AUTO mode), Vref 
+                            are RA3 and RA2
+0016   30F0           00043         Movlw   b'11110000'             ;Enable RB0 interrupt
+0017   008B           00044         Movwf   INTCON
+0018   1421           00045         BSF     SPD,0                   ;Set speed to zero initially
+0019   0187           00046         CLRF    PORTC
+001A   0188           00047         Clrf    PORTD                   ;LCD configuration:
+001B   0000           00048         nop  
+001C   1683 1303      00049         BANKSEL OPTION_REG
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+001E   0181           00050         CLRF    OPTION_REG              ;Set prescale to 1 
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+001F   1701           00051         Bsf     OPTION_REG, INTEDG
+0020   1683 1303      00052         BANKSEL PR2
+0022   307C           00053         MOVLW   .124                                    
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0023   0092           00054         MOVWF   PR2                             ;Set PR2 value to 124
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0024   148C           00055         BSF     PIE1,TMR2IE             ;Enable Timer2 interrupt
+0025   1683 1303      00056         BANKSEL TMR0VAR
+0027   3001           00057         MOVLW   1
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0028   00AA           00058         MOVWF   TMR0VAR                 ;Set TMR0 counter to 1 to test the input state after one interru
+                            pt
+0029   21AD           00059         CALL    SETTMR0                 ;Sets the intial conditions for TMR0
+002A   1283 1303      00060         BANKSEL T2CON
+002C   3038           00061         MOVLW   B'00111000'             ;Sets the TMR2 postscale to 8
+002D   0092           00062         MOVWF   T2CON
+002E   3038           00063         Movlw   0x38                    ;8-bit mode, 2-line display, 5x7 dot format
+002F   20CF           00064         Call    send_cmd
+0030   300C           00065         Movlw   0x0c                    ;Display on, Cursor Underline off, Blink off
+0031   20CF           00066         Call    send_cmd        
+                      00067         
+                      00068 ;****************************Main program******************************
+0032                  00069 Main
+0032   1283 1303      00070         BANKSEL   PORTB
+0034   1F86           00071         btfss     PORTB,7               ;if RB7(switch)=0 -> Hold state
+0035   20A8           00072         Call      display_HOLD  ;enter the hold state
+0036                  00073 recheck
+0036   1F86           00074         btfss     PORTB,7               ;infinite loop until the switch is released
+0037   2836           00075         goto      recheck
+                      00076 
+0038   1824           00077         btfsc     wasHOLD,0             ;if the last previous mode was Hold, clear the LCD 
+0039   20CC           00078         Call      clear_LCD             ;(if wasHOLD[0] == 1)
+                      00079 
+003A   151F           00080         Bsf       ADCON0,GO             ;Startup ADC divert
+                      00081 
+003B                  00082 Wait
+003B   1F0C           00083         Btfss     PIR1,ADIF             ;Checks if conversion is done
+003C   283B           00084         Goto      Wait                  ;Wait for conversion to finish
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+003D   130C           00085         Bcf               PIR1, ADIF    ;Clear the A/D flag
+                      00086 
+                      00087 
+003E   1D9F           00088         Btfss     ADCON0, 3             ;Checks mode of operation
+003F   2045           00089         Call      Check_temp    ;Check temperature to choose appropriate 
+0040   199F           00090         Btfsc     ADCON0, 3
+0041   2055           00091         Call      Check_knob    ;Check knob to choose appropriate speed
+                      00092         
+0042   00A1           00093         Movwf     SPD                   ;Save speed mode in first two bits of GPR SPD, 
+                      00094                                                         ;SPD = 0001 -> 0000 RPM, SPD =0010 -> 1000 RPM, 
+                      00095                                                         ;SPD = 0100 -> 2000 RPM, SPD =1000 -> 3000 RPM
+                      00096 
+                      00097         
+0043   207F           00098         Call      display_SPEED ;Display speed & temperature
+                      00099         
+0044   2832           00100         Goto      Main
+                      00101 
+                      00102 ;**********************Temperature Check subroutine********************
+0045                  00103 Check_temp
+0045   1024           00104         bcf             wasHOLD,0               ;Clear the bit associated with the hold state (wasHOLD[0
+                            ] = 0)
+0046   2065           00105         Call    display_AUTO
+0047   081E           00106         Movf    ADRESH, W
+0048   00A0           00107         Movwf   TEMP
+0049   3E55           00108         Addlw   b'01010101'
+004A   1803           00109         Btfsc   STATUS, C
+004B   3408           00110         Retlw   8                               ;SPD = 1000 (3000 RPM)
+                      00111 
+004C   0820           00112         Movf    TEMP, W
+004D   3E84           00113         Addlw   b'10000100'
+004E   1803           00114         Btfsc   STATUS, C
+004F   3404           00115         Retlw   4                               ;SPD = 0100 (2000 RPM)
+                      00116 
+0050   0820           00117         Movf    TEMP, W
+0051   3EB2           00118         Addlw   b'10110010'
+0052   1803           00119         Btfsc   STATUS, C
+0053   3402           00120         Retlw   2                               ;SPD = 0010 (1000 RPM)
+                      00121 
+0054   3401           00122         Retlw   1                               ;SPD = 0001 (0000 RPM)
+                      00123 
+                      00124 ;**************************Knob Check subroutine***********************
+0055                  00125 Check_knob
+0055   1024           00126         bcf             wasHOLD,0               ;Clear the bit associated with the hold state (wasHOLD[0
+                            ] = 0)
+0056   2072           00127         Call    display_MANUAL
+0057   081E           00128         Movf    ADRESH, W
+0058   00A0           00129         Movwf   TEMP
+0059   3E80           00130         Addlw   b'10000000'
+005A   1803           00131         Btfsc   STATUS, C
+005B   3408           00132         Retlw   8                               ;SPD = 1000 (3000 RPM)
+                      00133 
+005C   0820           00134         Movf    TEMP, W
+005D   3EBF           00135         Addlw   b'10111111'
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+005E   1803           00136         Btfsc   STATUS, C
+005F   3404           00137         Retlw   4                               ;SPD = 0100 (2000 RPM)
+                      00138 
+0060   0820           00139         Movf    TEMP, W
+0061   3EFF           00140         Addlw   b'11111111'
+0062   1803           00141         Btfsc   STATUS, C
+0063   3402           00142         Retlw   2                               ;SPD = 0010 (1000 RPM)
+                      00143 
+0064   3401           00144         Retlw   1                               ;SPD = 0001 (0000 RPM)
+                      00145 
+                      00146 ;****************************Display Auto******************************
+0065                  00147 display_AUTO
+0065   3038           00148         Movlw   0x38            ;8-bit mode, 2-line display, 5x7 dot format
+0066   20CF           00149         Call    send_cmd        
+0067   3086           00150         movlw   0x86            ;start at location 6
+0068   20CF           00151         Call    send_cmd
+0069   3041           00152         movlw   'A'
+006A   20D7           00153         Call    send_char
+006B   3055           00154         movlw   'U'
+006C   20D7           00155         Call    send_char
+006D   3054           00156         movlw   'T'
+006E   20D7           00157         Call    send_char       
+006F   304F           00158         movlw   'O'
+0070   20D7           00159         Call    send_char
+Warning[203]: Found opcode in column 1. (return)
+0071   0008           00160 return
+                      00161 ;****************************Display MANU******************************
+0072                  00162 display_MANUAL
+0072   3038           00163         Movlw   0x38            ;8-bit mode, 2-line display, 5x7 dot format
+0073   20CF           00164         Call    send_cmd
+0074   3086           00165         movlw   0x86            ;start at location 6
+0075   20CF           00166         Call    send_cmd
+0076   304D           00167         movlw   'M'
+0077   20D7           00168         Call    send_char
+0078   3041           00169         movlw   'A'
+0079   20D7           00170         Call    send_char
+007A   304E           00171         movlw   'N'
+007B   20D7           00172         Call    send_char       
+007C   3055           00173         movlw   'U'
+007D   20D7           00174         Call    send_char
+Warning[203]: Found opcode in column 1. (return)
+007E   0008           00175 return
+                      00176 ;****************************Display Speed*****************************
+007F                  00177 display_SPEED
+007F   30C2           00178         movlw   0xc2            ;Start at location 2 of the 2nd line
+0080   20CF           00179         Call    send_cmd
+0081   1821           00180         btfsc   SPD,0           ;The following four tests will choose what speed should be displayed
+0082   3030           00181         movlw   '0'
+0083   18A1           00182         btfsc   SPD,1
+0084   3031           00183         movlw   '1'
+0085   1921           00184         btfsc   SPD,2
+0086   3032           00185         movlw   '2'
+0087   19A1           00186         btfsc   SPD,3
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0088   3033           00187         movlw   '3'
+0089   20D7           00188         Call    send_char
+                      00189         
+008A   3030           00190         movlw   '0'
+008B   20D7           00191         Call    send_char
+008C   3030           00192         movlw   '0'
+008D   20D7           00193         Call    send_char
+008E   3030           00194         movlw   '0'
+008F   20D7           00195         Call    send_char
+0090   3052           00196         movlw   'R'
+0091   20D7           00197         Call    send_char
+0092   3050           00198         movlw   'P'
+0093   20D7           00199         Call    send_char
+0094   304D           00200         movlw   'M'
+0095   20D7           00201         Call    send_char
+0096   3020           00202         movlw   0x20
+0097   20D7           00203         Call    send_char
+                      00204 
+0098   1821           00205         btfsc   SPD,0           ;The following four tests will choose what temperature should be display
+                            ed
+0099   3030           00206         movlw   '0'
+009A   18A1           00207         btfsc   SPD,1
+009B   3031           00208         movlw   '1'
+009C   1921           00209         btfsc   SPD,2
+009D   3032           00210         movlw   '2'
+009E   19A1           00211         btfsc   SPD,3
+009F   3033           00212         movlw   '3'
+00A0   20D7           00213         Call    send_char
+                      00214         
+00A1   3030           00215         movlw   '0'
+00A2   20D7           00216         Call    send_char
+00A3   3043           00217         movlw   'C'
+00A4   20D7           00218         Call    send_char
+00A5   30DF           00219         movlw   0xdf            ;(') sign
+00A6   20D7           00220         Call    send_char
+Warning[203]: Found opcode in column 1. (return)
+00A7   0008           00221 return
+                      00222 
+                      00223 ;***************************Display Hold*******************************
+00A8                  00224 display_HOLD
+                      00225 
+00A8   1424           00226         bsf             wasHOLD,0       ;The previous mode was Hold(wasHOLD[0] = 1)
+00A9   3001           00227         movlw   0x01
+00AA   20CF           00228         Call    send_cmd
+00AB   3081           00229         movlw   0x81            ;Start at location 01
+00AC   20CF           00230         Call    send_cmd
+00AD   3053           00231         movlw   'S'
+00AE   20D7           00232         Call    send_char
+00AF   3079           00233         movlw   'y'
+00B0   20D7           00234         Call    send_char
+00B1   3073           00235         movlw   's'
+00B2   20D7           00236         Call    send_char       
+00B3   3074           00237         movlw   't'
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00B4   20D7           00238         Call    send_char       
+00B5   3065           00239         movlw   'e'
+00B6   20D7           00240         Call    send_char
+00B7   306D           00241         movlw   'm'
+00B8   20D7           00242         Call    send_char
+00B9   3020           00243         movlw   0x20
+00BA   20D7           00244         Call    send_char
+00BB   3069           00245         movlw   'i'
+00BC   20D7           00246         Call    send_char
+00BD   306E           00247         movlw   'n'
+00BE   20D7           00248         Call    send_char
+00BF   3020           00249         movlw   0x20
+00C0   20D7           00250         Call    send_char
+00C1   3048           00251         movlw   'H'
+00C2   20D7           00252         Call    send_char
+00C3   306F           00253         movlw   'o'
+00C4   20D7           00254         Call    send_char
+00C5   306C           00255         movlw   'l'
+00C6   20D7           00256         Call    send_char
+00C7   3064           00257         movlw   'd'
+00C8   20D7           00258         Call    send_char
+00C9   3001           00259         movlw   0x01
+00CA   00A1           00260         movwf   SPD
+Warning[203]: Found opcode in column 1. (return)
+00CB   0008           00261 return
+                      00262 
+                      00263 ;****************************Clear the LCD*****************************
+00CC                  00264 clear_LCD
+00CC   3001           00265         movlw   0x01
+00CD   20CF           00266         Call    send_cmd
+00CE   0008           00267         return
+                      00268 ;***************************Send LCD command***************************
+00CF                  00269 send_cmd
+00CF   0088           00270         movwf   PORTD 
+00D0   1086           00271         bcf     PORTB, 1
+00D1   1586           00272         bsf     PORTB, 3
+00D2   0000           00273         nop
+                      00274 
+00D3   1186           00275         bcf     PORTB, 3
+00D4   1106           00276         bcf     PORTB, 2
+00D5   20DE           00277         call    LCD_delay
+Warning[203]: Found opcode in column 1. (return)
+00D6   0008           00278 return
+                      00279 
+                      00280 ;***************************Send LCD character*************************
+00D7                  00281 send_char
+00D7   0088           00282         movwf   PORTD 
+00D8   1486           00283         bsf     PORTB, 1
+00D9   1586           00284         bsf     PORTB, 3
+00DA   0000           00285         nop
+                      00286 
+00DB   1186           00287         bcf     PORTB, 3
+00DC   1106           00288         bcf     PORTB, 2
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+Warning[203]: Found opcode in column 1. (return)
+00DD   0008           00289 return
+                      00290 
+                      00291 ;*******************************LCD delay*******************************
+00DE                  00292 LCD_delay
+00DE   3010           00293         movlw   0x10
+00DF   00A3           00294         movwf   msd
+00E0   01A2           00295         clrf    lsd
+00E1                  00296 loop2
+00E1   0BA2           00297         decfsz  lsd,f
+00E2   28E1           00298         goto    loop2
+00E3   0BA3           00299         decfsz  msd,f
+00E4                  00300 endLcd
+00E4   28E1           00301         goto    loop2
+Warning[203]: Found opcode in column 1. (return)
+00E5   0008           00302 return
+                      00303 
+                      00304 ;*********************************ISR**********************************
+00E6                  00305 ISR
+00E6   1283 1303      00306         BANKSEL TEMPWR
+00E8   00A5           00307         MOVWF   TEMPWR
+00E9   0E03           00308         SWAPF   STATUS,0
+00EA   00A6           00309         MOVWF   TEMPST
+00EB   188B           00310         btfsc   INTCON, INTF
+00EC   28F2           00311         goto    external_interrupt ;Mode button pressed
+00ED   1283 1303      00312         BANKSEL PIR1
+00EF   1C8C           00313         BTFSS   PIR1,TMR2IF     ;Check if its a timer2 or timer0 interrupt
+00F0   2955           00314         GOTO    TMR0INT
+00F1   28FC           00315         GOTO    TMR2INT
+                      00316 
+                      00317 
+00F2                  00318 external_interrupt
+00F2   1283 1303      00319         Banksel PORTA                   ;Select bank 0
+00F4   081F           00320         Movf    ADCON0, W
+00F5   3A08           00321         Xorlw   b'00001000'
+00F6   009F           00322         Movwf   ADCON0                  ;Change mode from AUTO to MANU or vice versa
+00F7   108B           00323         Bcf             INTCON, INTF
+00F8   0E26           00324         SWAPF   TEMPST,0
+00F9   0083           00325         MOVWF   STATUS
+00FA   0825           00326         MOVF    TEMPWR,0
+00FB   0009           00327         Retfie
+                      00328         
+                      00329 
+                      00330 ;********************TMR2 Interrupt Subroutine********************
+00FC                  00331 TMR2INT
+00FC   1283 1303      00332         BANKSEL PIR1 
+00FE   108C           00333         BCF     PIR1,TMR2IF
+00FF   1683 1303      00334         BANKSEL TMR2VAR
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0101   0BAB           00335         DECFSZ  TMR2VAR,1
+0102   2904           00336         GOTO    TMR2RET
+0103   290A           00337         GOTO    TMR2CONT
+                      00338 
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0104                  00339 TMR2RET
+0104   1283 1303      00340         BANKSEL TEMPWR
+0106   0E26           00341         SWAPF   TEMPST,0
+0107   0083           00342         MOVWF   STATUS
+0108   0825           00343         MOVF    TEMPWR,0
+0109   0009           00344         RETFIE
+                      00345 
+010A                  00346 TMR2CONT
+010A   1283 1303      00347         BANKSEL T2CON
+010C   1112           00348         BCF     T2CON,TMR2ON
+010D   168B           00349         BSF     INTCON,T0IE
+010E   110B           00350         BCF     INTCON,T0IF
+010F   21AD           00351         CALL    SETTMR0                 ;After TMR2 is finished set up TMR0     
+                      00352 
+0110                  00353 CASE0T2                                         ;Speed=0000RPM
+0110   1283 1303      00354         BANKSEL SPD
+0112   1C21           00355         BTFSS   SPD,0
+0113   2921           00356         GOTO    CASE1T2
+0114   1283 1303      00357         BANKSEL PORTC
+0116   1007           00358         BCF     PORTC,0
+0117   1683 1303      00359         BANKSEL TMR0VAR
+0119   302C           00360         MOVLW   .44
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+011A   00AA           00361         MOVWF   TMR0VAR
+011B   1283 1303      00362         BANKSEL TEMPWR
+011D   0E26           00363         SWAPF   TEMPST,0
+011E   0083           00364         MOVWF   STATUS
+011F   0825           00365         MOVF    TEMPWR,0
+0120   0009           00366         RETFIE
+                      00367 
+0121                  00368 CASE1T2                                         ;Speed=1000RPM
+0121   1283 1303      00369         BANKSEL SPD
+0123   1CA1           00370         BTFSS   SPD,1
+0124   2932           00371         GOTO    CASE2T2
+0125   1283 1303      00372         BANKSEL PORTC
+0127   1007           00373         BCF     PORTC,0
+0128   1683 1303      00374         BANKSEL TMR0VAR
+012A   301D           00375         MOVLW   .29
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+012B   00AA           00376         MOVWF   TMR0VAR
+012C   1283 1303      00377         BANKSEL TEMPWR
+012E   0E26           00378         SWAPF   TEMPST,0
+012F   0083           00379         MOVWF   STATUS
+0130   0825           00380         MOVF    TEMPWR,0
+0131   0009           00381         RETFIE
+                      00382 
+0132                  00383 CASE2T2                                         ;Speed=2000RPM
+0132   1283 1303      00384         BANKSEL SPD
+0134   1D21           00385         BTFSS   SPD,2
+0135   2943           00386         GOTO    CASE3T2
+0136   1283 1303      00387         BANKSEL PORTC
+0138   1007           00388         BCF     PORTC,0
+0139   1683 1303      00389         BANKSEL TMR0VAR
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+013B   300E           00390         MOVLW   .14
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+013C   00AA           00391         MOVWF   TMR0VAR
+013D   1283 1303      00392         BANKSEL TEMPWR
+013F   0E26           00393         SWAPF   TEMPST,0
+0140   0083           00394         MOVWF   STATUS
+0141   0825           00395         MOVF    TEMPWR,0
+Warning[203]: Found opcode in column 1. (RETFIE)
+0142   0009           00396 RETFIE
+                      00397 
+0143                  00398 CASE3T2                                         ;Speed=3000RPM
+0143   1283 1303      00399         BANKSEL PORTC
+0145   1407           00400         BSF     PORTC,0
+0146   1283 1303      00401         BANKSEL T2CON
+0148   128B           00402         BCF     INTCON,T0IE
+0149   1512           00403         BSF     T2CON,TMR2ON
+014A   0191           00404         CLRF    TMR2
+014B   1683 1303      00405         BANKSEL TMR0VAR
+014D   302C           00406         MOVLW   .44
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+014E   00AB           00407         MOVWF   TMR2VAR                 ;Switch off TMR0 and turn TMR2 on again
+014F   1283 1303      00408         BANKSEL TEMPWR
+0151   0E26           00409         SWAPF   TEMPST,0
+0152   0083           00410         MOVWF   STATUS
+0153   0825           00411         MOVF    TEMPWR,0
+0154   0009           00412         RETFIE
+                      00413 
+                      00414 
+                      00415 ;*************************TMR0 Interrupt Subroutine********************
+0155                  00416 TMR0INT
+0155   110B           00417         BCF             INTCON,T0IF
+0156   21AD           00418         CALL    SETTMR0
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0157   0BAA           00419         DECFSZ  TMR0VAR,1
+0158   295A           00420         GOTO    TMR0RET
+0159   2960           00421         GOTO    TMR0CONT
+                      00422 
+015A                  00423 TMR0RET
+015A   1283 1303      00424         BANKSEL TEMPWR
+015C   0E26           00425         SWAPF   TEMPST,0
+015D   0083           00426         MOVWF   STATUS
+015E   0825           00427         MOVF    TEMPWR,0
+015F   0009           00428         RETFIE
+                      00429 
+0160                  00430 TMR0CONT
+0160   128B           00431         BCF             INTCON,T0IE
+0161   1283 1303      00432         BANKSEL T2CON
+0163   1512           00433         BSF     T2CON,TMR2ON
+0164   1283 1303      00434         BANKSEL PIR1
+0166   108C           00435         BCF     PIR1,TMR2IF
+0167   0191           00436         CLRF    TMR2            ;After TMR0 is finished set up TMR2
+                      00437 
+0168                  00438 CASE0T0                                 ;Speed=0000RPM
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE 10
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0168   1283 1303      00439         BANKSEL SPD
+016A   1C21           00440         BTFSS   SPD,0
+016B   297E           00441         GOTO    CASE1T0
+016C   1283 1303      00442         BANKSEL PORTC
+016E   1007           00443         BCF     PORTC,0
+016F   168B           00444         BSF     INTCON,T0IE
+0170   21AD           00445         CALL    SETTMR0
+0171   1283 1303      00446         BANKSEL T2CON
+0173   1112           00447         BCF     T2CON,TMR2ON
+0174   1683 1303      00448         BANKSEL TMR0VAR
+0176   302C           00449         MOVLW   .44
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0177   00AA           00450         MOVWF   TMR0VAR
+0178   1283 1303      00451         BANKSEL TEMPWR
+017A   0E26           00452         SWAPF   TEMPST,0
+017B   0083           00453         MOVWF   STATUS
+017C   0825           00454         MOVF    TEMPWR,0
+017D   0009           00455         RETFIE
+                      00456 
+017E                  00457 CASE1T0                                 ;Speed=1000RPM
+017E   1283 1303      00458         BANKSEL SPD
+0180   1CA1           00459         BTFSS   SPD,1
+0181   298F           00460         GOTO    CASE2T0
+0182   1283 1303      00461         BANKSEL PORTC
+0184   1407           00462         BSF     PORTC,0
+0185   1683 1303      00463         BANKSEL TMR0VAR
+0187   300F           00464         MOVLW   .15
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0188   00AB           00465         MOVWF   TMR2VAR
+0189   1283 1303      00466         BANKSEL TEMPWR
+018B   0E26           00467         SWAPF   TEMPST,0
+018C   0083           00468         MOVWF   STATUS
+018D   0825           00469         MOVF    TEMPWR,0
+018E   0009           00470         RETFIE
+                      00471 
+018F                  00472 CASE2T0                                 ;Speed=2000RPM
+018F   1283 1303      00473         BANKSEL SPD
+0191   1D21           00474         BTFSS   SPD,2
+0192   29A0           00475         GOTO    CASE3T0
+0193   1283 1303      00476         BANKSEL PORTC
+0195   1407           00477         BSF     PORTC,0
+0196   1683 1303      00478         BANKSEL TMR0VAR
+0198   301E           00479         MOVLW   .30
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0199   00AB           00480         MOVWF   TMR2VAR
+019A   1283 1303      00481         BANKSEL TEMPWR
+019C   0E26           00482         SWAPF   TEMPST,0
+019D   0083           00483         MOVWF   STATUS
+019E   0825           00484         MOVF    TEMPWR,0
+019F   0009           00485         RETFIE
+                      00486 
+01A0                  00487 CASE3T0                                 ;Speed=3000RPM
+01A0   1283 1303      00488         BANKSEL PORTC
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE 11
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+01A2   1407           00489         BSF     PORTC,0
+01A3   1683 1303      00490         BANKSEL TMR0VAR
+01A5   302C           00491         MOVLW   .44
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01A6   00AB           00492         MOVWF   TMR2VAR
+01A7   1283 1303      00493         BANKSEL TEMPWR
+01A9   0E26           00494         SWAPF   TEMPST,0
+01AA   0083           00495         MOVWF   STATUS
+01AB   0825           00496         MOVF    TEMPWR,0
+01AC   0009           00497         RETFIE                          ;Switch off TMR2 and turn TMR0 on again
+                      00498 
+                      00499 
+                      00500 ;************************Setting up TMR0 subroutine********************
+01AD                  00501 SETTMR0                                 
+01AD   1283 1303      00502         BANKSEL TMR0
+01AF   3086           00503         MOVLW   .134
+01B0   0081           00504         MOVWF   TMR0
+01B1   1683 1303      00505         BANKSEL OPTION_REG
+01B3   3042           00506         MOVLW   B'01000010'
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01B4   0081           00507         MOVWF   OPTION_REG
+01B5   0008           00508         RETURN
+                      00509 ;**********************************************************************
+Warning[205]: Found directive in column 1. (END)
+                      00510 END
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE 12
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ADCON0                            0000001F
+ADCON1                            0000009F
+ADCS0                             00000006
+ADCS1                             00000007
+ADCS2                             00000006
+ADDEN                             00000003
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADON                              00000000
+ADRESH                            0000001E
+ADRESL                            0000009E
+BCLIE                             00000003
+BCLIF                             00000003
+BF                                00000000
+BRGH                              00000002
+C                                 00000000
+C1INV                             00000004
+C1OUT                             00000006
+C2INV                             00000005
+C2OUT                             00000007
+CASE0T0                           00000168
+CASE0T2                           00000110
+CASE1T0                           0000017E
+CASE1T2                           00000121
+CASE2T0                           0000018F
+CASE2T2                           00000132
+CASE3T0                           000001A0
+CASE3T2                           00000143
+CCP1CON                           00000017
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1X                             00000005
+CCP1Y                             00000004
+CCP2CON                           0000001D
+CCP2IE                            00000000
+CCP2IF                            00000000
+CCP2M0                            00000000
+CCP2M1                            00000001
+CCP2M2                            00000002
+CCP2M3                            00000003
+CCP2X                             00000005
+CCP2Y                             00000004
+CCPR1H                            00000016
+CCPR1L                            00000015
+CCPR2H                            0000001C
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE 13
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CCPR2L                            0000001B
+CHS0                              00000003
+CHS1                              00000004
+CHS2                              00000005
+CIS                               00000003
+CKE                               00000006
+CKP                               00000004
+CM0                               00000000
+CM1                               00000001
+CM2                               00000002
+CMCON                             0000009C
+CMIE                              00000006
+CMIF                              00000006
+CREN                              00000004
+CSRC                              00000007
+CVR0                              00000000
+CVR1                              00000001
+CVR2                              00000002
+CVR3                              00000003
+CVRCON                            0000009D
+CVREN                             00000007
+CVROE                             00000006
+CVRR                              00000005
+Check_knob                        00000055
+Check_temp                        00000045
+D                                 00000005
+DATA_ADDRESS                      00000005
+DC                                00000001
+D_A                               00000005
+EEADR                             0000010D
+EEADRH                            0000010F
+EECON1                            0000018C
+EECON2                            0000018D
+EEDATA                            0000010C
+EEDATH                            0000010E
+EEIE                              00000004
+EEIF                              00000004
+EEPGD                             00000007
+F                                 00000001
+FERR                              00000002
+FSR                               00000004
+GCEN                              00000007
+GIE                               00000007
+GO                                00000002
+GO_DONE                           00000002
+I2C_DATA                          00000005
+I2C_READ                          00000002
+I2C_START                         00000003
+I2C_STOP                          00000004
+IBF                               00000007
+IBOV                              00000005
+INDF                              00000000
+INTCON                            0000000B
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE 14
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+INTE                              00000004
+INTEDG                            00000006
+INTF                              00000001
+IRP                               00000007
+ISR                               000000E6
+Initial                           00000005
+LCD_delay                         000000DE
+Main                              00000032
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BO                            00000000
+NOT_BOR                           00000000
+NOT_DONE                          00000002
+NOT_PD                            00000003
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_RC8                           00000006
+NOT_T1SYNC                        00000002
+NOT_TO                            00000004
+NOT_TX8                           00000006
+NOT_W                             00000002
+NOT_WRITE                         00000002
+OBF                               00000006
+OERR                              00000001
+OPTION_REG                        00000081
+P                                 00000004
+PCFG0                             00000000
+PCFG1                             00000001
+PCFG2                             00000002
+PCFG3                             00000003
+PCL                               00000002
+PCLATH                            0000000A
+PCON                              0000008E
+PEIE                              00000006
+PEN                               00000002
+PIE1                              0000008C
+PIE2                              0000008D
+PIR1                              0000000C
+PIR2                              0000000D
+PORTA                             00000005
+PORTB                             00000006
+PORTC                             00000007
+PORTD                             00000008
+PORTE                             00000009
+PR2                               00000092
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+PSPIE                             00000007
+PSPIF                             00000007
+PSPMODE                           00000004
+R                                 00000002
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE 15
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RBIE                              00000003
+RBIF                              00000000
+RC8_9                             00000006
+RC9                               00000006
+RCD8                              00000000
+RCEN                              00000003
+RCIE                              00000005
+RCIF                              00000005
+RCREG                             0000001A
+RCSTA                             00000018
+RD                                00000000
+READ_WRITE                        00000002
+RP0                               00000005
+RP1                               00000006
+RSEN                              00000001
+RX9                               00000006
+RX9D                              00000000
+R_W                               00000002
+S                                 00000003
+SEN                               00000000
+SETTMR0                           000001AD
+SMP                               00000007
+SPBRG                             00000099
+SPD                               00000021
+SPEN                              00000007
+SREN                              00000005
+SSPADD                            00000093
+SSPBUF                            00000013
+SSPCON                            00000014
+SSPCON2                           00000091
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPOV                             00000006
+SSPSTAT                           00000094
+STATUS                            00000003
+SYNC                              00000004
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0SE                              00000004
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000010
+T1INSYNC                          00000002
+T1OSCEN                           00000003
+T1SYNC                            00000002
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE 16
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+T2CON                             00000012
+TEMP                              00000020
+TEMPST                            00000026
+TEMPWR                            00000025
+TMR0                              00000001
+TMR0CONT                          00000160
+TMR0IE                            00000005
+TMR0IF                            00000002
+TMR0INT                           00000155
+TMR0RET                           0000015A
+TMR0VAR                           000000AA
+TMR1CS                            00000001
+TMR1H                             0000000F
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1L                             0000000E
+TMR1ON                            00000000
+TMR2                              00000011
+TMR2CONT                          0000010A
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2INT                           000000FC
+TMR2ON                            00000002
+TMR2RET                           00000104
+TMR2VAR                           000000AB
+TOUTPS0                           00000003
+TOUTPS1                           00000004
+TOUTPS2                           00000005
+TOUTPS3                           00000006
+TRISA                             00000085
+TRISB                             00000086
+TRISC                             00000087
+TRISD                             00000088
+TRISE                             00000089
+TRISE0                            00000000
+TRISE1                            00000001
+TRISE2                            00000002
+TRMT                              00000001
+TX8_9                             00000006
+TX9                               00000006
+TX9D                              00000000
+TXD8                              00000000
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXREG                             00000019
+TXSTA                             00000098
+UA                                00000001
+W                                 00000000
+WCOL                              00000007
+WR                                00000001
+WREN                              00000002
+WRERR                             00000003
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE 17
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+Wait                              0000003B
+Z                                 00000002
+_BODEN_OFF                        00003FBF
+_BODEN_ON                         00003FFF
+_CPD_OFF                          00003FFF
+_CPD_ON                           00003EFF
+_CP_ALL                           00001FFF
+_CP_OFF                           00003FFF
+_DEBUG_OFF                        00003FFF
+_DEBUG_ON                         000037FF
+_HS_OSC                           00003FFE
+_LP_OSC                           00003FFC
+_LVP_OFF                          00003F7F
+_LVP_ON                           00003FFF
+_PWRTE_OFF                        00003FFF
+_PWRTE_ON                         00003FF7
+_RC_OSC                           00003FFF
+_WDT_OFF                          00003FFB
+_WDT_ON                           00003FFF
+_WRT_1FOURTH                      00003BFF
+_WRT_256                          00003DFF
+_WRT_HALF                         000039FF
+_WRT_OFF                          00003FFF
+_XT_OSC                           00003FFD
+__16F877A                         00000001
+__DEBUG                           1
+clear_LCD                         000000CC
+display_AUTO                      00000065
+display_HOLD                      000000A8
+display_MANUAL                    00000072
+display_SPEED                     0000007F
+endLcd                            000000E4
+external_interrupt                000000F2
+loop2                             000000E1
+lsd                               00000022
+msd                               00000023
+recheck                           00000036
+send_char                         000000D7
+send_cmd                          000000CF
+wasHOLD                           00000024
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+0000 : XX--XXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0040 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+MPASM  5.35                 ESLAB_PROJECT.ASM   12-29-2020  11:16:35         PAGE 18
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+
+0080 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+00C0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0100 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0140 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0180 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXX----------
+2000 : -------X-------- ---------------- ---------------- ----------------
+
+All other memory blocks unused.
+
+Program Memory Words Used:   436
+Program Memory Words Free:  7756
+
+
+Errors   :     0
+Warnings :    12 reported,     0 suppressed
+Messages :    24 reported,     0 suppressed
+
+
